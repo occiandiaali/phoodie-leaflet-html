@@ -2,12 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="description"
-      content="The HTML reference describes all elements and attributes of HTML, including global attributes that apply to all elements."
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>Phoodie</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
@@ -107,7 +104,9 @@
       .close-dialog:hover {
         cursor: pointer;
       }
-      nav h1 {
+      nav img {
+        width: 120px;
+        height: 64px;
         position: absolute;
         top: 0;
         left: 25%;
@@ -115,17 +114,37 @@
         font-family: cursive, Verdana, Geneva, Tahoma, sans-serif;
         text-shadow: 1px 1px 3px rgb(4, 243, 44);
       }
+      .review-div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 6px;
+      }
+      .review-div input {
+        padding: 6px;
+        margin: 6px;
+      }
     </style>
   </head>
-  <body>
+  <body onload="getCurrentCoords()">
     <nav>
-      <h1>Phoodie</h1>
+      <!-- <h1>Phoodie</h1> -->
+      <img src="logo-black.png" alt="Phoodie" />
     </nav>
     <div id="osm-map"></div>
     <dialog id="dialog">
       <span class="close-dialog">X</span>
       Content here
       <pre id="geolocation"></pre>
+      <div class="review-div">
+        <h3>Leave a review</h3>
+        <form>
+          <input type="text" placeholder="Name of Eatery.." name="name" />
+          <textarea placeholder="Review.." rows="5"></textarea>
+        </form>
+        <p>Comments show here</p>
+      </div>
       <button class="close">close</button>
       <button class="review">review</button>
     </dialog>
@@ -153,18 +172,48 @@
         attribution:
           '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
+      var targetCoordinates = L.latLng("0", "0");
 
-      // Define the desired geographic coordinates
-      var targetCoordinates = L.latLng("47.50737", "19.04611");
-      geo.innerText = targetCoordinates;
+      function getCurrentCoords() {
+        if (navigator.geolocation) {
+          const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
+          };
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              geo.innerText = `${position.coords.latitude} - ${position.coords.longitude} (Accuracy:${position.coords.accuracy}m)`;
+              targetCoordinates = L.latLng(
+                position.coords.latitude,
+                position.coords.longitude,
+              );
+              map.setView(targetCoordinates, 16);
+              // Add a marker at the defined coordinates
+              L.marker(targetCoordinates)
+                .addTo(map)
+                .on("click", () => dialogElem.showModal());
+            },
+            (error) => {
+              geo.innerText = `Error: ${error.message}`;
+            },
+          );
+        } else {
+          geo.innerText = "Geolocation isn't supported by this browser..";
+        }
+      }
+
+      // // Define the desired geographic coordinates
+      // var targetCoordinates = L.latLng("47.50737", "19.04611");
+      // geo.innerText = targetCoordinates;
 
       // Set the initial view of the map
-      map.setView(targetCoordinates, 16);
+      //map.setView(targetCoordinates, 16);
 
-      // Add a marker at the defined coordinates
-      L.marker(targetCoordinates)
-        .addTo(map)
-        .on("click", () => dialogElem.showModal());
+      // // Add a marker at the defined coordinates
+      // L.marker(targetCoordinates)
+      //   .addTo(map)
+      //   .on("click", () => dialogElem.showModal());
     </script>
   </body>
 </html>
