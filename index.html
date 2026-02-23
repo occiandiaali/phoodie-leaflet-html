@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Phoodie</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+      #osm-map {
+        /*height: 300px;*/
+        height: 96vh;
+      }
+
+      dialog {
+        animation: fade-out 0.7s ease-out;
+      }
+
+      dialog:open {
+        animation: fade-in 0.7s ease-out;
+      }
+
+      dialog:open::backdrop {
+        background-color: black;
+        animation: backdrop-fade-in 0.7s ease-out forwards;
+      }
+
+      /* Animation keyframes */
+
+      @keyframes fade-in {
+        0% {
+          opacity: 0;
+          transform: scaleY(0);
+          display: none;
+        }
+
+        100% {
+          opacity: 1;
+          transform: scaleY(1);
+          display: block;
+        }
+      }
+
+      @keyframes fade-out {
+        0% {
+          opacity: 1;
+          transform: scaleY(1);
+          display: block;
+        }
+
+        100% {
+          opacity: 0;
+          transform: scaleY(0);
+          display: none;
+        }
+      }
+
+      @keyframes backdrop-fade-in {
+        0% {
+          opacity: 0;
+        }
+
+        100% {
+          opacity: 0.25;
+        }
+      }
+
+      body,
+      button {
+        font-family: system-ui;
+      }
+      .close {
+        background: red;
+        color: white;
+        border: none;
+        padding: 6px;
+      }
+      .close:hover {
+        cursor: pointer;
+        background: white;
+        color: red;
+        border: 1px solid red;
+      }
+      .review {
+        background: green;
+        color: white;
+        border: none;
+        padding: 6px;
+      }
+      .review:hover {
+        cursor: pointer;
+        background: white;
+        color: green;
+        border: 1px solid green;
+      }
+      .close-dialog {
+        position: absolute;
+        right: 10%;
+        color: red;
+        font-size: large;
+        font-weight: 800;
+      }
+      .close-dialog:hover {
+        cursor: pointer;
+      }
+      nav h1 {
+        position: absolute;
+        top: 0;
+        left: 25%;
+        z-index: 999;
+        font-family: cursive, Verdana, Geneva, Tahoma, sans-serif;
+        text-shadow: 1px 1px 3px rgb(4, 243, 44);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <h1>Phoodie</h1>
+    </nav>
+    <div id="osm-map"></div>
+    <dialog id="dialog">
+      <span class="close-dialog">X</span>
+      Content here
+      <pre id="geolocation"></pre>
+      <button class="close">close</button>
+      <button class="review">review</button>
+    </dialog>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      const dialogElem = document.getElementById("dialog");
+      const closeBtn = document.querySelector(".close");
+      const closeX = document.querySelector(".close-dialog");
+
+      closeBtn.addEventListener("click", () => {
+        dialogElem.close();
+      });
+      closeX.addEventListener("click", () => {
+        dialogElem.close();
+      });
+      const geo = document.getElementById("geolocation");
+      // Element where we will render the map
+      var mapElement = document.getElementById("osm-map");
+
+      // Create a map in the specified element
+      var map = L.map(mapElement);
+
+      // Load and display tile layers from OpenStreetMap
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      // Define the desired geographic coordinates
+      var targetCoordinates = L.latLng("47.50737", "19.04611");
+      geo.innerText = targetCoordinates;
+
+      // Set the initial view of the map
+      map.setView(targetCoordinates, 16);
+
+      // Add a marker at the defined coordinates
+      L.marker(targetCoordinates)
+        .addTo(map)
+        .on("click", () => dialogElem.showModal());
+    </script>
+  </body>
+</html>
